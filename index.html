@@ -3,22 +3,91 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <title></title>
+        <title>TRIBAL BIGASS MESSAGE</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <link rel="stylesheet" href="css/normalize.min.css">
         <link rel="stylesheet" href="css/main.css">
 
+        <script>
+          var messages =
+          [{"message": "This is a placeholder", "from": "Tribal", "created": "2015-07-01T19:16:37.643Z"}]
+
+        </script>
+
         <script src="js/vendor/modernizr-2.8.3.min.js"></script>
     </head>
     <body>
 
-        <p>Hello world! This is HTML5 Boilerplate.</p>
-
-        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-        <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.11.2.min.js"><\/script>')</script>
 
         <script src="js/main.js"></script>
+
+        <div id="main">
+          <div id="cards">
+            <div class="card">
+              <div class="message">
+                <span class="text">OH NO, IT'S BROKEN, CALL SOMEONE TO FIX IT</span>
+              </div>
+            </div>
+          </div>
+        </div>
     </body>
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.11.2.min.js"><\/script>')</script>
+    <script src="js/underscore.js"></script>
+
+    <script type="text/template" class="template">
+      <div class="card">
+        <div class="message">
+          <span class="text"><%- message %></span>
+          <p class="author">–<span class="name"><%- from %></span></p>
+        </div>
+      </div>
+    </script>
+
+    <script>
+    $(function() {
+        var template = _.template($("script.template").html());
+
+        var $cards = $("#cards");
+
+        var buildCards = function() {
+          $cards.html("");
+
+          var idx = 0;
+          messages.forEach(v => {
+            $card = $cards.append(template(v));
+            idx++;
+          })
+        }
+
+        var loadMessages = function() {
+          $.getJSON( "http://10.50.6.78:8000/messages/", function( data ) {
+              messages = data["messages"];
+          }).always(function() {
+              buildCards();
+              nextMessage();
+          });;
+
+        }
+        var nextMessage = function() {
+          $active = $cards.find(".active");
+          $allCards = $cards.children();
+          $nextActive = $allCards.eq(($allCards.index($active) + 1) % $allCards.length);
+          $active.removeClass("active");
+          $nextActive.addClass("active");
+          if($allCards.index($nextActive) == $allCards.length-1) {
+            loadMessages();
+          }
+          else {
+            setTimeout(nextMessage, 3000);
+          }
+        }
+
+        loadMessages();
+
+    });
+    </script>
 </html>
